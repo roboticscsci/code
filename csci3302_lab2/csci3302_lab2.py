@@ -40,13 +40,10 @@ def compute_odometry(left_position_sensor, right_position_sensor):
     r = right_position_sensor
     dl = l * WHEEL_RADIUS  # distance covered by left wheel in meter
     dr = r * WHEEL_RADIUS  # distance covered by right wheel in meter
-    
     da = (dr - dl) / AXLE_LENGTH  # delta orientation
-    orientation = 0
-    if ((dl+dr)/2 != 0):
-        orientation = da / ((dl+dr)/2)
-    print("Odometry: left wheel travel={0:.3f}, right wheel travel={1:.3f}, orientation={2:.3f} rad".format(dl, dr, orientation))
-    return dl, dr, orientation
+    
+    print("Odometry: left wheel travel={0:.3f}, right wheel travel={1:.3f}, orientation={2:.3f} rad".format(dl, dr, da))
+    return dl, dr, da
 
 # get the time step of the current world.
 SIM_TIMESTEP = int(robot.getBasicTimeStep())
@@ -145,10 +142,9 @@ while robot.step(SIM_TIMESTEP) != -1:
     # Webots simulator first (x points down, y points right)
     distance = (left_travel+right_travel)/2
     
-    pose_x = distance * cos(angle)
-    pose_y = distance * sin(angle)
-    pose_theta = angle
-    
+    pose_theta = angle*180/pi
+    pose_x = distance * cos(pose_theta)
+    pose_y = distance * sin(pose_theta)
 
     
     # TODO: Insert Loop Closure Code Here
