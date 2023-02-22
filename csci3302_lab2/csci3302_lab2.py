@@ -38,7 +38,6 @@ RANGE = 1024 / 2
 def compute_odometry(left_position_sensor, right_position_sensor):
     l = left_position_sensor
     r = right_position_sensor
-    print(l)
     dl = l * WHEEL_RADIUS  # distance covered by left wheel in meter
     dr = r * WHEEL_RADIUS  # distance covered by right wheel in meter
     
@@ -115,6 +114,9 @@ while robot.step(SIM_TIMESTEP) != -1:
             #loop closure
             left_sensor_offset = left_sensor.getValue()
             right_sensor_offset = right_sensor.getValue()
+            count = 1
+            pose_x = 0
+            pose_y = 0
             curState = 0
     elif gsr[0] < 310:
         curState = 2
