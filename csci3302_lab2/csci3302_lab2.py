@@ -27,7 +27,7 @@ robot = Robot()
 
 # ePuck Constants
 EPUCK_AXLE_DIAMETER = 0.053 # ePuck's wheels are 53mm apart.
-EPUCK_MAX_WHEEL_SPEED = 0 # TODO: To be filled in with ePuck wheel speed in m/s
+EPUCK_MAX_WHEEL_SPEED = 0.1256 # TODO: To be filled in with ePuck wheel speed in m/s
 MAX_SPEED = 6.28
 
 WHEEL_RADIUS = 0.02
@@ -70,7 +70,7 @@ for gs in ground_sensors:
 pose_x = 0
 pose_y = 0
 pose_theta = 0
-theta = 0
+
 
 # Allow sensors to properly initialize
 for i in range(10): robot.step(SIM_TIMESTEP)  
