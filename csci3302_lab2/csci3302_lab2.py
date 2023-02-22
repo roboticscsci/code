@@ -38,10 +38,12 @@ RANGE = 1024 / 2
 def compute_odometry(left_position_sensor, right_position_sensor):
     l = left_position_sensor
     r = right_position_sensor
+    print(l)
     dl = l * WHEEL_RADIUS  # distance covered by left wheel in meter
     dr = r * WHEEL_RADIUS  # distance covered by right wheel in meter
-    da = (dr - dl) / AXLE_LENGTH  # delta orientation
     
+    da = (dr - dl) / AXLE_LENGTH  # delta orientation
+
     print("Odometry: left wheel travel={0:.3f}, right wheel travel={1:.3f}, orientation={2:.3f} rad".format(dl, dr, da))
     return dl, dr, da
 
@@ -84,6 +86,9 @@ left_sensor_offset = 0
 right_sensor_offset = 0
 # Main Control Loop:
 while robot.step(SIM_TIMESTEP) != -1:
+    
+    count = count + 1
+
     # Read ground sensor values
     for i, gs in enumerate(ground_sensors):
         gsr[i] = gs.getValue()
@@ -142,9 +147,10 @@ while robot.step(SIM_TIMESTEP) != -1:
     # Webots simulator first (x points down, y points right)
     distance = (left_travel+right_travel)/2
     
-    pose_theta = angle*180/pi
-    pose_x = distance * cos(pose_theta)
-    pose_y = distance * sin(pose_theta)
+    pose_x = pose_x + (distance * cos(angle))/count
+    pose_y = pose_y + (distance * sin(angle))/count
+    pose_theta = angle
+    
 
     
     # TODO: Insert Loop Closure Code Here
