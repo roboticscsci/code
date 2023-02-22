@@ -43,7 +43,7 @@ def compute_odometry(left_position_sensor, right_position_sensor):
     
     da = (dr - dl) / AXLE_LENGTH  # delta orientation
 
-    print("Odometry: left wheel travel={0:.3f}, right wheel travel={1:.3f}, orientation={2:.3f} rad".format(dl, dr, da))
+    #print("Odometry: left wheel travel={0:.3f}, right wheel travel={1:.3f}, orientation={2:.3f} rad".format(dl, dr, da))
     return dl, dr, da
 
 # get the time step of the current world.
@@ -148,7 +148,6 @@ while robot.step(SIM_TIMESTEP) != -1:
     # about calculating odometry in the world coordinate system of the
     # Webots simulator first (x points down, y points right)
     distance = (left_travel+right_travel)/2
-    
     pose_x = pose_x + (distance * cos(angle))/count
     pose_y = pose_y + (distance * sin(angle))/count
     pose_theta = angle
