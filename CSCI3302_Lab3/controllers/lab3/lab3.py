@@ -48,7 +48,7 @@ vR = 1
 # TODO
 # Create you state and goals (waypoints) variable here
 # You have to MANUALLY figure out the waypoints, one sample is provided for you in the instructions
-goals = [[5, -3, 2], [5, 2, 0], [7, 1, 0], [0, 0, 0]]
+goals = [[5.5, -2, 0], [6, 3.5, 2], [5, 10, 4]]
 current_goal = goals[0]
 
 while robot.step(timestep) != -1:
@@ -60,21 +60,23 @@ while robot.step(timestep) != -1:
     theta = math.atan2(dy, dx)
     bearingError = theta - pose_theta
     headingError = current_goal[2] - pose_theta
-    print(posError, bearingError, headingError)
+    
  
 
 
-    if(posError < 0.25):
+    if(posError < 0.5 or (pose_x >= 1.3 and pose_x <=1.4 and pose_y >= 8.9 and pose_y <= 9.0)):
         goals.pop(0)
         if(len(goals) > 0):
             current_goal = goals[0]
         else:
+            robot_parts[MOTOR_LEFT].setVelocity(0)
+            robot_parts[MOTOR_RIGHT].setVelocity(0)
             break
     
     # STEP 2.2: Feedback Controller
     p1 = .5
-    p2 = 10
-    p3 = 0
+    p2 = 4
+    p3 = 3
     dX = p1 * posError
     dTheta = p2*bearingError + p3*headingError
     
@@ -88,7 +90,7 @@ while robot.step(timestep) != -1:
 
     
     # STEP 2.3: Proportional velocities
-
+    #implimented in feedback controller
     
 
     # STEP 2.4: Clamp wheel speeds
@@ -102,6 +104,7 @@ while robot.step(timestep) != -1:
     pose_y += (distL+distR)/2 * math.sin(pose_theta)
     pose_theta += (distR-distL)/AXLE_LENGTH
     print(pose_x, pose_y, pose_theta)
+    
 
     
     
