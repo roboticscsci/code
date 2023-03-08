@@ -48,7 +48,7 @@ vR = 1
 # TODO
 # Create you state and goals (waypoints) variable here
 # You have to MANUALLY figure out the waypoints, one sample is provided for you in the instructions
-goals = [[5.5, -2, 0], [6, 3.5, 2], [5, 10, 4]]
+goals = [[5.5, -2.2, 0], [6, 3.5, 2], [5, 10, 4]]
 current_goal = goals[0]
 
 while robot.step(timestep) != -1:
@@ -63,8 +63,8 @@ while robot.step(timestep) != -1:
     
  
 
-
-    if(posError < 0.5 or (pose_x >= 1.3 and pose_x <=1.4 and pose_y >= 8.9 and pose_y <= 9.0)):
+    #checks if the poserror is low or if its at the green square
+    if(posError < 0.5 or (pose_x >= 1.4 and pose_x <=1.45 and pose_y >= 8.5 and pose_y <= 9.0)):
         goals.pop(0)
         if(len(goals) > 0):
             current_goal = goals[0]
