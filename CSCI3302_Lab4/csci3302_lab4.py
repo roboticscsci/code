@@ -52,6 +52,7 @@ for gs in ground_sensors:
 # Initialize the Display    
 display = robot.getDevice("display")
 
+
 # get and enable lidar 
 lidar = robot.getDevice("LDS-01")
 lidar.enable(SIM_TIMESTEP)
@@ -99,13 +100,11 @@ while robot.step(SIM_TIMESTEP) != -1:
     # where the robot moves.
     
     # Draw red dot at robot location
-    display.setColor(0xFF0000)
+    #display.setColor(0xFF0000)
     pixel_x = int(np.round(pose_x*300, decimals=0))
     pixel_y = int(np.round(pose_y*300, decimals=0))
-    display.drawPixel(pixel_x, pixel_y)
+    #display.drawPixel(pixel_x, pixel_y)
     
-    # Plotting robot, not needed in final code
-    plt.scatter(pixel_x, pixel_y, color='red') 
     
     # Draw blue dots at obstacles
     display.setColor(0x0000FF)
@@ -123,16 +122,17 @@ while robot.step(SIM_TIMESTEP) != -1:
         
         sense_x = d*math.sin(pose_theta - phi) + pose_x
         sense_y = d*math.cos(pose_theta - phi) + pose_y
-        
         ##### Part 4: Draw the obstacle and free space pixels on the map
         if not (math.isinf(sense_x) or math.isinf(sense_y)):
-           
             pixel_sense_x = int(np.round(sense_x*300, decimals=0))
             pixel_sense_y = int(np.round(sense_y*300, decimals=0))
+            display.setColor(0xFFFFFF)
+            display.drawLine(pixel_x, pixel_y, pixel_sense_x, pixel_sense_y)
+            display.setColor(0xFF0000)
+            display.drawPixel(pixel_x, pixel_y)
+            display.setColor(0x0000FF)
             display.drawPixel(pixel_sense_x, pixel_sense_y)
             
-            # Plotting obstacle instances, not needed in final code
-            plt.scatter(pixel_sense_x, pixel_sense_y, color='blue')
             
 
     
@@ -180,12 +180,7 @@ while robot.step(SIM_TIMESTEP) != -1:
     pose_theta += (dsr-dsl)/EPUCK_AXLE_DIAMETER
     
     # Feel free to uncomment this for debugging
-    print("X: %f Y: %f Theta: %f " % (pose_x,pose_y,pose_theta))
+    #print("X: %f Y: %f Theta: %f " % (pose_x,pose_y,pose_theta))
     
     count = count + 1
-    print(count)
-    
-    if count == 100:
-        break
-        
-plt.show()
+    #print(count)
