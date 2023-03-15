@@ -52,6 +52,9 @@ for gs in ground_sensors:
 # Initialize the Display    
 display = robot.getDevice("display")
 
+# Set the background color to white (0xFFFFFF)
+# display.setColor(0xFFFFFF)
+# display.fillRectangle(0, 0, display_width, display_height)
 
 # get and enable lidar 
 lidar = robot.getDevice("LDS-01")
@@ -75,6 +78,7 @@ MAX_ANGLE = LIDAR_ANGLE_RANGE/2
 
 lidar_offsets = np.linspace(MIN_ANGLE, MAX_ANGLE, LIDAR_ANGLE_BINS)
 
+pixels = set()
 #### End of Part 1 #####
  
 # Main Control Loop:
@@ -100,10 +104,9 @@ while robot.step(SIM_TIMESTEP) != -1:
     # where the robot moves.
     
     # Draw red dot at robot location
-    #display.setColor(0xFF0000)
     pixel_x = int(np.round(pose_x*300, decimals=0))
     pixel_y = int(np.round(pose_y*300, decimals=0))
-    #display.drawPixel(pixel_x, pixel_y)
+    pixels.add(((pixel_x, pixel_y), 0xFF0000))
     
     
     # Draw blue dots at obstacles
@@ -128,10 +131,12 @@ while robot.step(SIM_TIMESTEP) != -1:
             pixel_sense_y = int(np.round(sense_y*300, decimals=0))
             display.setColor(0xFFFFFF)
             display.drawLine(pixel_x, pixel_y, pixel_sense_x, pixel_sense_y)
-            display.setColor(0xFF0000)
-            display.drawPixel(pixel_x, pixel_y)
             display.setColor(0x0000FF)
             display.drawPixel(pixel_sense_x, pixel_sense_y)
+            for (x,y), color in pixels:
+                display.setColor(color)
+                display.drawPixel(x,y)
+         
             
             
 
@@ -182,5 +187,3 @@ while robot.step(SIM_TIMESTEP) != -1:
     # Feel free to uncomment this for debugging
     #print("X: %f Y: %f Theta: %f " % (pose_x,pose_y,pose_theta))
     
-    count = count + 1
-    #print(count)
