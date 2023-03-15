@@ -52,9 +52,6 @@ for gs in ground_sensors:
 # Initialize the Display    
 display = robot.getDevice("display")
 
-# Set the background color to white (0xFFFFFF)
-# display.setColor(0xFFFFFF)
-# display.fillRectangle(0, 0, display_width, display_height)
 
 # get and enable lidar 
 lidar = robot.getDevice("LDS-01")
@@ -109,8 +106,6 @@ while robot.step(SIM_TIMESTEP) != -1:
     pixels.add(((pixel_x, pixel_y), 0xFF0000))
     
     
-    # Draw blue dots at obstacles
-    display.setColor(0x0000FF)
     for i in range(LIDAR_ANGLE_BINS):
         phi = lidar_offsets[i]
         d = lidar_sensor_readings[i]
