@@ -83,7 +83,7 @@ map = None
 ##################### IMPORTANT #####################
 # Set the mode here. Please change to 'autonomous' before submission
 mode = 'manual' # Part 1.1: manual mode
-# mode = 'planner'
+#mode = 'planner'
 # mode = 'autonomous'
 
 
@@ -136,6 +136,7 @@ if mode == 'planner':
 # Initialize your map data structure here as a 2D floating point array
 map = np.zeros(shape=[360,360])
 waypoints = []
+INCREMENT_VALUE = 5e-3
 
 if mode == 'autonomous':
     # Part 3.1: Load path from disk and visualize it
@@ -190,11 +191,19 @@ while robot.step(timestep) != -1 and mode != 'planner':
             wy = 11.999
         if rho < LIDAR_SENSOR_MAX_RANGE:
             # Part 1.3: visualize map gray values.
- 
-            # You will eventually REPLACE the following lines with a more robust version of the map
-            # with a grayscale drawing containing more levels than just 0 and 1.
-            display.setColor(int(0X0000FF))
-            display.drawPixel(360-abs(int(wx*30)),abs(int(wy*30)))
+            map_x = 360 - abs(int(wx*30))
+            map_y = abs(int(wy*30))
+            map_x = min(map_x, 359)
+            map_y = min(map_y, 359)
+
+            map[map_y, map_x] += INCREMENT_VALUE
+            map[map_y, map_x] = min(map[map_y, map_x], 1)
+
+            gray_value = map[map_y, map_x]
+            color = int((gray_value * 256**2 + gray_value * 256 + gray_value) * 255)
+            
+            display.setColor(color)
+            display.drawPixel(map_x, map_y)
 
     # Draw the robot's current pose on the 360x360 display
     display.setColor(int(0xFF0000))
@@ -225,7 +234,8 @@ while robot.step(timestep) != -1 and mode != 'planner':
             vR = 0
         elif key == ord('S'):
             # Part 1.4: Filter map and save to filesystem
-
+            filtered_map = np.multiply(map > 0.5, 1)
+            np.save("map.npy", filtered_map)
             print("Map file saved")
         elif key == ord('L'):
             # You will not use this portion in Part 1 but here's an example for loading saved a numpy array
