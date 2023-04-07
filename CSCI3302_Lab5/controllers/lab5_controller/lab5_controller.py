@@ -89,12 +89,7 @@ mode = 'planner'
 
 
 
-def world_to_map_coordinates(world_coord):
-    map_coord = np.array(world_coord)
-    map_coord += np.array([-180, 180])
-    map_coord = map_coord.astype(int)
-    map_coord = np.clip(map_coord, [0,0], [359,359])
-    return tuple(map_coord.tolist())
+
 ###################
 #
 # Planner
@@ -102,14 +97,14 @@ def world_to_map_coordinates(world_coord):
 ###################
 if mode == 'planner':
     # Part 2.3: Provide start and end in world coordinate frame and convert it to map's frame
-    start_w = (-8,-4) # (Pose_X, Pose_Y) in meters
-    end_w = (-10, -7) # (Pose_X, Pose_Y) in meters
+    start_w = (6,5) # (Pose_X, Pose_Y) in meters
+    end_w = (10, 7) # (Pose_X, Pose_Y) in meters
 
     # Convert the start_w and end_w from the webots coordinate frame into the map frame
     #start = world_to_map_coordinates(start_w) # (x, y) in 360x360 map
     #end = world_to_map_coordinates(end_w) # (x, y) in 360x360 map
-    start = (175, 160)
-    end = (300, 210)
+    start = (start_w[0]*30, start_w[1]*30)
+    end = (end_w[0]*30, end_w[1]*30)
     
 
     # Part 2.3: Implement A* or Dijkstra's Algorithm to find a path
@@ -120,7 +115,6 @@ if mode == 'planner':
         :param end: A tuple of indices representing the end cell in the map
         :return: A list of tuples as a path from the given start to the given end in the given maze
         '''
-        print("1")
         frontier = PriorityQueue()
         frontier.put(start, 0)
         cost = {start: 0}
@@ -136,7 +130,9 @@ if mode == 'planner':
             for next in [(current[0]+1, current[1]), (current[0]-1, current[1]), (current[0], current[1]+1), (current[0], current[1]-1)]:
                 if next[0] < 0 or next[0] >= map.shape[0] or next[1] < 0 or next[1] >= map.shape[1]:
                     continue
-                new_cost = cost[current] + map[next[0], next[1]]
+                if map[next[0], next[1]] == 1:
+                    continue
+                new_cost = cost[current] + 1
                 if next not in cost or new_cost < cost[next]:
                     cost[next] = new_cost
                     priority = new_cost + heuristic(end, next)
@@ -169,6 +165,7 @@ if mode == 'planner':
     
     # Part 2.3 continuation: Call path_planner
     path = path_planner(config_space_map, start, end)
+    print(path)
     path_map = np.copy(config_space_map)
     for point in path:
         path_map[point] = 2
