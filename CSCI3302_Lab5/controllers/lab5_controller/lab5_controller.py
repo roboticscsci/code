@@ -1,5 +1,6 @@
 """lab5 controller."""
 from controller import Robot, Motor, Camera, RangeFinder, Lidar, Keyboard
+from queue import PriorityQueue
 import math
 import numpy as np
 from matplotlib import pyplot as plt
@@ -82,13 +83,18 @@ map = None
 
 ##################### IMPORTANT #####################
 # Set the mode here. Please change to 'autonomous' before submission
-mode = 'manual' # Part 1.1: manual mode
-#mode = 'planner'
+# mode = 'manual' # Part 1.1: manual mode
+mode = 'planner'
 # mode = 'autonomous'
 
 
 
-
+def world_to_map_coordinates(world_coord):
+    map_coord = np.array(world_coord)
+    map_coord += np.array([-180, 180])
+    map_coord = map_coord.astype(int)
+    map_coord = np.clip(map_coord, [0,0], [359,359])
+    return tuple(map_coord.tolist())
 ###################
 #
 # Planner
@@ -96,12 +102,15 @@ mode = 'manual' # Part 1.1: manual mode
 ###################
 if mode == 'planner':
     # Part 2.3: Provide start and end in world coordinate frame and convert it to map's frame
-    start_w = None # (Pose_X, Pose_Y) in meters
-    end_w = None # (Pose_X, Pose_Y) in meters
+    start_w = (-8,-4) # (Pose_X, Pose_Y) in meters
+    end_w = (-10, -7) # (Pose_X, Pose_Y) in meters
 
     # Convert the start_w and end_w from the webots coordinate frame into the map frame
-    start = None # (x, y) in 360x360 map
-    end = None # (x, y) in 360x360 map
+    #start = world_to_map_coordinates(start_w) # (x, y) in 360x360 map
+    #end = world_to_map_coordinates(end_w) # (x, y) in 360x360 map
+    start = (175, 160)
+    end = (300, 210)
+    
 
     # Part 2.3: Implement A* or Dijkstra's Algorithm to find a path
     def path_planner(map, start, end):
@@ -111,15 +120,60 @@ if mode == 'planner':
         :param end: A tuple of indices representing the end cell in the map
         :return: A list of tuples as a path from the given start to the given end in the given maze
         '''
-        pass
+        print("1")
+        frontier = PriorityQueue()
+        frontier.put(start, 0)
+        cost = {start: 0}
+        parent = {start: None}
+
+        def heuristic(a, b):
+            return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+        
+        while not frontier.empty():
+            current = frontier.get()
+            if current == end:
+                break
+            for next in [(current[0]+1, current[1]), (current[0]-1, current[1]), (current[0], current[1]+1), (current[0], current[1]-1)]:
+                if next[0] < 0 or next[0] >= map.shape[0] or next[1] < 0 or next[1] >= map.shape[1]:
+                    continue
+                new_cost = cost[current] + map[next[0], next[1]]
+                if next not in cost or new_cost < cost[next]:
+                    cost[next] = new_cost
+                    priority = new_cost + heuristic(end, next)
+                    frontier.put(next, priority)
+                    parent[next] = current
+        
+        path = []
+        current = end
+        while current != start:
+            path.append(current)
+            current = parent[current]
+        path.append(start)
+        path.reverse()
+        return path
 
     # Part 2.1: Load map (map.npy) from disk and visualize it
-
+    map = np.load('map.npy')
+    # plt.imshow(map)
+    # plt.show()
 
     # Part 2.2: Compute an approximation of the “configuration space”
-
-
+    robots_radius_meters = 0.35
+    robot_radius_pixels = int(robots_radius_meters * 30)
+    kernel = np.ones((2* robot_radius_pixels, 2* robot_radius_pixels))
+    conv_map = convolve2d(map, kernel, mode='same', boundary='fill', fillvalue=0)
+    config_space_map = (conv_map > 0).astype(int)
+    config_space_map = np.fliplr(config_space_map)
+    # plt.imshow(config_space_map)
+    # plt.show()
+    
     # Part 2.3 continuation: Call path_planner
+    path = path_planner(config_space_map, start, end)
+    path_map = np.copy(config_space_map)
+    for point in path:
+        path_map[point] = 2
+    plt.imshow(path_map)
+    plt.show()
 
 
     # Part 2.4: Turn paths into waypoints and save on disk as path.npy and visualize it
