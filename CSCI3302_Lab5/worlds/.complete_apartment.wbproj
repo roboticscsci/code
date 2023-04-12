@@ -5,7 +5,7 @@ sceneTreePerspectives: 000000ff00000001000000030000001e000002d0000000fc010000000
 maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
-textFiles: 0 "controllers/lab5_controller/lab5_controller.py"
+textFiles: 0 "../CSCI3302_Lab5/controllers/lab5_controller/lab5_controller.py"
 globalOptionalRendering: CoordinateSystem
 consoles: Console:All:All
 renderingDevicePerspectives: TIAGo Steel:camera;1;1;0;0
