@@ -92,31 +92,7 @@ mode = 'manual'
 
 # ------------------------------------------------------------------
 # Helper Functions
-def detect_yellow_objects(image):
-    # Convert the image to HSV
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
-    # Define the color range for yellow
-    lower_yellow = np.array([20, 100, 100])
-    upper_yellow = np.array([30, 255, 255])
-
-    # Threshold the image to keep only the yellow pixels
-    mask = cv2.inRange(hsv_image, lower_yellow, upper_yellow)
-
-    # Find contours in the binary image
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Filter out small contours
-    min_area = 500
-    yellow_objects = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
-
-    return yellow_objects
-    
-def draw_detected_objects(image, objects):
-    for cnt in objects:
-        # Draw the contour of the object on the image
-        cv2.drawContours(image, [cnt], 0, (0, 255, 0), 2)
-    return image
     
 gripper_status="closed"
 
@@ -152,15 +128,17 @@ while robot.step(timestep) != -1:
         else: # slow down
             vL *= 0.75
             vR *= 0.75
-            
-    camera_image = camera.getImageArray()
-    cv2_image = np.array(camera_image, dtype=np.uint8)
-    yellow_objects = detect_yellow_objects(cv2_image)
-    image_with_detections = draw_detected_objects(cv2_image, yellow_objects)
-    webots_image = cv2.cvtColor(image_with_detections, cv2.COLOR_BGR2BGRA)
-    display_image = np.asarray(webots_image, dtype=np.uint8)
-    #display.setAlpha(0xFF)
-    #display.imagePaste(display_image, 0, 0, False)
+   
+    num_objects = camera.getRecognitionNumberOfObjects()
+    yellowobjsGPS = []
+    yellowobjsCamera = []
+    for i in range(num_objects):
+        obj = camera.getRecognitionObject(i)
+        if (obj.getColors() == [1.0, 1.0, 0]):
+            yellowobjsGPS.append(obj.getPosition())
+            yellowobjsCamera.append(obj.getPositionOnImage())
+    
+   
 
 
     
