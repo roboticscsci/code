@@ -178,8 +178,8 @@ if mode == 'planner':
     path_map = np.copy(config_space_map)
     for point in path:
         path_map[point] = 2
-    # plt.imshow(path_map)
-    # plt.show()
+    plt.imshow(path_map)
+    plt.show()
 
 
     # Part 2.4: Turn paths into waypoints and save on disk as path.npy and visualize it

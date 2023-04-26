@@ -132,11 +132,12 @@ while robot.step(timestep) != -1:
     num_objects = camera.getRecognitionNumberOfObjects()
     yellowobjsGPS = []
     yellowobjsCamera = []
+    obj = camera.getRecognitionObjects()
     for i in range(num_objects):
-        obj = camera.getRecognitionObject(i)
-        if (obj.getColors() == [1.0, 1.0, 0]):
-            yellowobjsGPS.append(obj.getPosition())
-            yellowobjsCamera.append(obj.getPositionOnImage())
+        if (obj[i].getColors() == [1.0, 1.0, 0]):
+            yellowobjsGPS.append(obj[i].getPosition())
+            yellowobjsCamera.append(obj[i].getPositionOnImage())
+
     
    
 
