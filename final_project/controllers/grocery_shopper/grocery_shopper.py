@@ -133,7 +133,7 @@ for link in my_chain.links:
         if link.name == "torso_lift_joint":
             motor.setVelocity(0.07)
         else:
-            motor.setVelocity(1)
+            motor.setVelocity(0.5)
             
         position_sensor = motor.getPositionSensor()
         position_sensor.enable(timestep)
@@ -158,8 +158,7 @@ mode = "manual"
 # open grippers
 robot_parts["gripper_left_finger_joint"].setPosition(0.045)
 robot_parts["gripper_right_finger_joint"].setPosition(0.045)
-if left_gripper_enc.getValue()>=0.044:
-    gripper_status="open"
+gripper_status="open"
 
 # set torso_lift_joint to 0
 robot.getDevice("torso_lift_joint").setPosition(0.25)
@@ -189,9 +188,8 @@ while robot.step(timestep) != -1:
         elif key == ord('S'):
             vL = -MAX_SPEED
             vR = -MAX_SPEED
-        elif key == keyboard.LEFT:
-            vL = -MAX_SPEED
-            vR = MAX_SPEED
+        # elif key == keyboard.LEFT:
+          
         elif key == keyboard.RIGHT:
             if(gripper_status=="open"):
                 # Close gripper, note that this takes multiple time steps...
@@ -199,7 +197,7 @@ while robot.step(timestep) != -1:
                 robot_parts["gripper_right_finger_joint"].setPosition(0)
                 gripper_status="closed"
             else:
-                # Open gripper
+                ## Open gripper
                 robot_parts["gripper_left_finger_joint"].setPosition(0.045)
                 robot_parts["gripper_right_finger_joint"].setPosition(0.045)
                 gripper_status="open"
@@ -207,13 +205,13 @@ while robot.step(timestep) != -1:
             # get intial position, disabled links have position '0'
             initial_position = [0,0,0,0] + [m.getPositionSensor().getValue() for m in motors] + [0,0,0,0]
             # get yellow obj position relative to the camera
-            target = yellowobjsGPS[c]
+            target = yellowobjsGPS[0]
             print(target)
             
             # adjust target from camera coordinate to be realtive to the end effector
-            adjusted_target = [-target[2] + 0.47, -target[0] + 0.87, target[1] + 0.90]
+            target = [-target[2] + 0.47, -target[0] + 0.85, target[1] + 0.895]
             # ik operation
-            ikResults = my_chain.inverse_kinematics(adjusted_target, target_orientation = [0,0,1], orientation_mode="Y")
+            ikResults = my_chain.inverse_kinematics(target, target_orientation = [0,0,1], orientation_mode="Y")
             # apply ik to robot's end effector
             for res in range(len(ikResults)):
                 # ignore non-controllable links
@@ -227,7 +225,6 @@ while robot.step(timestep) != -1:
                     else:
                         robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
                         print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
-            c = c + 1
             
         elif key == keyboard.DOWN:
             # get intial position, disabled links have position '0'
@@ -246,20 +243,87 @@ while robot.step(timestep) != -1:
                         robot.getDevice(my_chain.links[res].name).setPosition(0.25)
                         print("Setting {} to {}".format(my_chain.links[res].name, 0.25))
                     elif my_chain.links[res].name == "gripper_right_finger_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.0)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.0))
+                    else:
+                        robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
+                        print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
+        elif key == ord('I'):
+            # ik operation
+            # adjust target manually (teleoperation)
+            target = [target[2] + 0.01, target[0] + 0.01, target[1] + 0.01]
+            # ik operation
+            ikResults = my_chain.inverse_kinematics(target, target_orientation = [0,0,1], orientation_mode="Y")
+            # apply ik to robot's end effector
+            for res in range(len(ikResults)):
+                # ignore non-controllable links
+                if my_chain.links[res].name in part_names:
+                    if my_chain.links[res].name == "torso_lift_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.25)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.25))
+                    elif my_chain.links[res].name == "gripper_right_finger_joint":
                         robot.getDevice(my_chain.links[res].name).setPosition(0.045)
                         print("Setting {} to {}".format(my_chain.links[res].name, 0.045))
                     else:
                         robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
                         print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
-        # elif key == ord('O'):
-            # Part 1.4: Filter map and save to filesystem
-            # filtered_map = np.multiply(map > 0.5, 1)
-            # np.save("map.npy", filtered_map)
-            # print("Map file saved")
-        # elif key == ord('L'):
-            # You will not use this portion in Part 1 but here's an example for loading saved a numpy array
-            # map = np.load("map.npy")
-            # print("Map loaded")
+        elif key == ord('J'):
+            # ik operation
+            # adjust target manually (teleoperation)
+            target = [target[2] - 0.01, target[0] - 0.01, target[1] - 0.01]
+            # ik operation
+            ikResults = my_chain.inverse_kinematics(target, target_orientation = [0,0,1], orientation_mode="Y")
+            # apply ik to robot's end effector
+            for res in range(len(ikResults)):
+                # ignore non-controllable links
+                if my_chain.links[res].name in part_names:
+                    if my_chain.links[res].name == "torso_lift_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.25)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.25))
+                    elif my_chain.links[res].name == "gripper_right_finger_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.045)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.045))
+                    else:
+                        robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
+                        print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
+        elif key == ord('K'):
+            # ik operation
+            # adjust target manually (teleoperation)
+            target = [target[2] + 0.0, target[0] + 0.0, target[1] + 0.01]
+            # ik operation
+            ikResults = my_chain.inverse_kinematics(target, target_orientation = [0,0,1], orientation_mode="Y")
+            # apply ik to robot's end effector
+            for res in range(len(ikResults)):
+                # ignore non-controllable links
+                if my_chain.links[res].name in part_names:
+                    if my_chain.links[res].name == "torso_lift_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.25)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.25))
+                    elif my_chain.links[res].name == "gripper_right_finger_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.045)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.045))
+                    else:
+                        robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
+                        print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
+        elif key == ord('L'):
+            # ik operation
+            # adjust target manually (teleoperation)
+            target = [target[2] + 0.0, target[0] + 0.0, target[1] - 0.01]
+            # ik operation
+            ikResults = my_chain.inverse_kinematics(target, target_orientation = [0,0,1], orientation_mode="Y")
+            # apply ik to robot's end effector
+            for res in range(len(ikResults)):
+                # ignore non-controllable links
+                if my_chain.links[res].name in part_names:
+                    if my_chain.links[res].name == "torso_lift_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.25)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.25))
+                    elif my_chain.links[res].name == "gripper_right_finger_joint":
+                        robot.getDevice(my_chain.links[res].name).setPosition(0.045)
+                        print("Setting {} to {}".format(my_chain.links[res].name, 0.045))
+                    else:
+                        robot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
+                        print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
         else: # slow down
             vL *= 0.75
             vR *= 0.75
@@ -270,7 +334,8 @@ while robot.step(timestep) != -1:
     for i in range(num_objects):
         if (obj[i].getColors() == [1.0, 1.0, 0]):
             yellowobjsGPS.append(obj[i].getPosition())
-            #print(yellowobjsGPS)  
+             
+    # print(yellowobjsGPS) 
                   
     robot_parts["wheel_left_joint"].setVelocity(vL)
     robot_parts["wheel_right_joint"].setVelocity(vR)
