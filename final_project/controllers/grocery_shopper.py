@@ -590,6 +590,57 @@ if mode == 'planner':
         path.reverse()
         return path
 
+    
+if mode == 'path tester':
+    path_loaded = np.load("path.npy")
+
+    while robot.step(timestep) != -1:
+
+        robot_parts["wheel_left_joint"].setVelocity(vL)
+        robot_parts["wheel_right_joint"].setVelocity(vR)
+
+        # Temporary odometry code
+        left_pos = wheel_left_sensor.getValue()
+        right_pos = wheel_right_sensor.getValue()
+        L_new, R_new, pose_theta = compute_odometry(left_pos, right_pos)
+
+        pose_x, pose_y, pose_theta = compute_odometry(left_pos, right_pos)
+
+        gpose_x = gps.getValues()[0]
+        gpose_y = gps.getValues()[1]
+
+        pixel_x = res * 14 - int(pose_x * res)
+        pixel_y = res * 7 - int(pose_y * res)
+
+        for point in path_loaded:
+
+            d, theta = calc_d_and_theta(point, (pixel_x, pixel_y))
+
+            while d > 10:
+                print("Theta between path points:", theta)
+                print("Theta of pose:", pose_theta)
+                if theta < pose_theta:
+                    turn(robot, robot_parts, MAX_SPEED, "left")
+                else:
+                    turn(robot, robot_parts, MAX_SPEED, "right")
+
+                d, theta = calc_d_and_theta(point, (pixel_x, pixel_y))
+
+                robot_parts["wheel_left_joint"].setVelocity(vL)
+                robot_parts["wheel_right_joint"].setVelocity(vR)
+
+                left_pos = wheel_left_sensor.getValue()
+                right_pos = wheel_right_sensor.getValue()
+                L_new, R_new, pose_theta = compute_odometry(left_pos, right_pos)
+
+                pose_x, pose_y, pose_theta = compute_odometry(left_pos, right_pos)
+
+                gpose_x = gps.getValues()[0]
+                gpose_y = gps.getValues()[1]
+
+                pixel_x = res * 14 - int(pose_x * res)
+                pixel_y = res * 7 - int(pose_y * res)
+
 
     # Part 2.1: Load map (map.npy) from disk and visualize it
     map = np.load(str(path_to_map))
